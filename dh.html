@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diffie-Hellman 鍵交換 (2026/7/31 サイエンスコース 勝股審也)</title>
+<style>
+    body {
+        font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+        line-height: 1.8;
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+        color: #333;
+    }
+    h1 {
+        border-bottom: 3px solid #4a90e2;
+        padding-bottom: 10px;
+    }
+    .box {
+        background: #f5f7fa;
+        border-left: 5px solid #4a90e2;
+        padding: 15px;
+        margin: 20px 0;
+    }
+    ol {
+        padding-left: 1.5em;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Diffie-Hellman 鍵交換 (サイエンスコース 勝股審也)</h1>
+
+<p>この授業では、以下の値を使用します。</p>
+
+<div class="box">
+    <strong>公開パラメータ</strong><br>
+    p = 999983（素数）<br>
+    q = 6329<br>
+    g = 999981
+</div>
+
+<p>
+あなたの秘密鍵は
+<strong>a = <span id="secretKey"></span></strong>
+です。
+</p>
+
+<ol>
+    <li>
+        この画面を閉じないようにしておくか、または
+        <strong>a</strong> をワークシートの裏面など、
+        他の人に見えない場所へ控えてください。
+    </li>
+
+    <li>
+        下の計算機を使って
+        <strong>g<sup>a</sup> mod p</strong>
+        を計算し、ワークシートの
+        「自分の公開情報」に記入してください。
+    </li>
+
+    <li>
+        他の人と公開情報 <strong>B</strong> を交換し終わったら、
+        下の計算機を使って
+        <strong>B<sup>a</sup> mod p</strong>
+        を計算し、
+        「その人との共有鍵」に記入してください。
+
+
+    </li>
+</ol>
+
+<div class="box">
+  <strong>x<sup>y</sup> mod p計算機 (pは999983で固定されています)</strong><br>
+
+  <p>
+    x:
+    <input type="text" id="B" size="10">
+  </p>
+
+  <p>
+    y:
+    <input type="text" id="a" size="10">
+  </p>
+
+  <button onclick="calcKey()">計算</button>
+
+  <p>
+    x<sup>y</sup> mod pの計算結果:
+    <span id="result"></span>
+  </p>
+
+</div>
+
+</body>
+<script>
+  const a = Math.floor(Math.random() * 4000) + 2000;
+  // 4000 ～ 4999
+  document.getElementById("secretKey").textContent = a;
+</script>
+</html>
+
+
+<script>
+  function modPow(base, exponent, modulus) {
+      base = BigInt(base);
+      exponent = BigInt(exponent);
+      modulus = BigInt(modulus);
+
+      let result = 1n;
+      base %= modulus;
+
+      while (exponent > 0n) {
+          if (exponent % 2n === 1n) {
+              result = (result * base) % modulus;
+          }
+          base = (base * base) % modulus;
+          exponent /= 2n;
+      }
+
+      return result;
+  }
+
+  function calcKey() {
+      const B = document.getElementById("B").value;
+      const a = document.getElementById("a").value;
+
+      const sharedKey = modPow(B, a, 999983);
+
+      document.getElementById("result").textContent =
+          sharedKey.toString();
+  }
+</script>
