@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1変数線形回帰 体験ページ</title>
+
+<style>
+body {
+  font-family: sans-serif;
+  margin: 20px;
+  background: #f5f7fb;
+}
+
+.container {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.panel {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+svg {
+  background: white;
+  border: 1px solid #ccc;
+}
+
+.controls {
+  width: 320px;
+}
+
+input[type="range"] {
+  width: 100%;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+.mse {
+  font-size: 32px;
+  font-weight: bold;
+  color: #15803d;
+}
+</style>
+</head>
+
+<body>
+
+<h1>1変数線形回帰 体験ページ</h1>
+
+<div class="container">
+
+  <div class="panel">
+    <svg id="plot" width="700" height="450"></svg>
+  </div>
+
+  <div class="panel controls">
+
+    <p>
+      <b>傾き w:</b>
+      <span id="slopeValue">1.00</span>
+    </p>
+
+    <input
+      id="slope"
+      type="range"
+      min="-1"
+      max="3"
+      step="0.01"
+      value="1">
+
+    <p>
+      <b>切片 b:</b>
+      <span id="interceptValue">0.00</span>
+    </p>
+
+    <input
+      id="intercept"
+      type="range"
+      min="-5"
+      max="10"
+      step="0.01"
+      value="0">
+
+    <br><br>
+
+    <button id="optimalButton">
+      最小二乗解を表示
+    </button>
+
+    <h3>残差二乗平均 (MSE)</h3>
+    <div class="mse" id="mseValue"></div>
+
+    <h3>最小二乗解</h3>
+    <div id="optimalInfo"></div>
+
+    <p>
+      緑の破線は正の残差、オレンジの破線は負の残差です。
+    </p>
+
+  </div>
+
+</div>
+
+<script>
+
+const data = [
+{ x:0.5 , y:2.1 },
+{ x:1.0 , y:2.8 },
+{ x:1.4 , y:3.4 },
+{ x:1.8 , y:4.0 },
+{ x:2.1 , y:4.8 },
+{ x:2.5 , y:5.3 },
+{ x:2.9 , y:5.6 },
+{ x:3.2 , y:6.7 },
+{ x:3.6 , y:6.9 },
+{ x:4.0 , y:7.8 },
+{ x:4.4 , y:8.0 },
+{ x:4.8 , y:8.5 },
+{ x:5.2 , y:9.2 },
+{ x:5.5 , y:9.8 },
+{ x:5.9 , y:10.1 },
+{ x:6.3 , y:10.9 },
+{ x:6.7 , y:11.2 },
+{ x:7.0 , y:12.0 },
+{ x:7.4 , y:12.5 },
+{ x:7.8 , y:12.9 },
+{ x:8.1 , y:13.6 },
+{ x:8.5 , y:14.0 },
+{ x:8.9 , y:14.8 },
+{ x:9.2 , y:15.0 },
+{ x:9.6 , y:15.9 },
+{ x:10.0, y:16.0 },
+{ x:10.3, y:16.7 },
+{ x:10.7, y:17.3 },
+{ x:11.1, y:17.6 },
+{ x:11.5, y:18.4 }
+];
+
+const svg = document.getElementById("plot");
+
+const W = 700;
+const H = 450;
+const PAD = 40;
+
+const xMax = 12;
+const yMax = 20;
+
+function sx(x){
+  return PAD + x/xMax*(W-2*PAD);
+}
+
+function sy(y){
+  return H-PAD - y/yMax*(H-2*PAD);
+}
+
+const n = data.length;
+
+const meanX =
+data.reduce((s,p)=>s+p.x,0)/n;
+
+const meanY =
+data.reduce((s,p)=>s+p.y,0)/n;
+
+const optimalSlope =
+data.reduce(
+  (s,p)=>s+(p.x-meanX)*(p.y-meanY),0
+)
+/
+data.reduce(
+  (s,p)=>s+(p.x-meanX)*(p.x-meanX),0
+);
+
+const optimalIntercept =
+meanY - optimalSlope*meanX;
+
+document.getElementById("optimalInfo").innerHTML =
+`w=${optimalSlope.toFixed(3)}, b=${optimalIntercept.toFixed(3)}`;
+
+function update(){
+
+  const slope =
+  parseFloat(document.getElementById("slope").value);
+
+  const intercept =
+  parseFloat(document.getElementById("intercept").value);
+
+  document.getElementById("slopeValue").textContent =
+  slope.toFixed(2);
+
+  document.getElementById("interceptValue").textContent =
+  intercept.toFixed(2);
+
+  let mse = 0;
+
+  let html = `
+  <line x1="${PAD}" y1="${H-PAD}"
+        x2="${W-PAD}" y2="${H-PAD}"
+        stroke="black"/>
+
+  <line x1="${PAD}" y1="${PAD}"
+        x2="${PAD}" y2="${H-PAD}"
+        stroke="black"/>
+  `;
+
+  data.forEach(p=>{
+
+    const pred = slope*p.x + intercept;
+    const r = p.y - pred;
+
+    mse += r*r;
+
+    html += `
+    <line
+      x1="${sx(p.x)}"
+      x2="${sx(p.x)}"
+      y1="${sy(p.y)}"
+      y2="${sy(pred)}"
+      stroke="${r>=0 ? 'green' : 'orange'}"
+      stroke-dasharray="4,4"
+      stroke-width="2"
+    />
+
+    <circle
+      cx="${sx(p.x)}"
+      cy="${sy(p.y)}"
+      r="4"
+      fill="#2563eb"
+    />
+    `;
+  });
+
+  mse /= n;
+
+  html += `
+  <line
+    x1="${sx(0)}"
+    y1="${sy(intercept)}"
+    x2="${sx(12)}"
+    y2="${sy(slope*12+intercept)}"
+    stroke="red"
+    stroke-width="3"
+  />
+  `;
+
+  svg.innerHTML = html;
+
+  document.getElementById("mseValue").textContent =
+  mse.toFixed(3);
+}
+
+document.getElementById("slope")
+  .addEventListener("input", update);
+
+document.getElementById("intercept")
+  .addEventListener("input", update);
+
+document.getElementById("optimalButton")
+  .addEventListener("click", ()=>{
+
+    document.getElementById("slope").value =
+    optimalSlope;
+
+    document.getElementById("intercept").value =
+    optimalIntercept;
+
+    update();
+  });
+
+update();
+
+</script>
+
+</body>
+</html>
