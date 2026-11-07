@@ -42,16 +42,16 @@
     g = 999981
 </div>
 
-<p>
-あなたの秘密鍵は
+<p style="font-size: 200%; text-align: center;">
+あなたの秘密鍵<strong>a</strong>は
 <strong>a = <span id="secretKey"></span></strong>
 です。
 </p>
 
 <ol>
     <li>
-        この画面を閉じないようにしておくか、または
-        <strong>a</strong> をワークシートの裏面など、
+      <!--この画面を閉じないようにしておくか、または-->
+        秘密鍵<strong>a</strong> をワークシートの裏面など、
         他の人に見えない場所へ控えてください。
     </li>
 
@@ -63,16 +63,22 @@
     </li>
 
     <li>
-        他の人と公開情報を交換し終わったら、下の計算機を使って、他の人の公開情報 <strong>B</strong> から
+      他の人数名と公開情報を交換して、名前と公開情報をワークシートに記入してください。
+    </li>
+    <li>
+        交換し終わったら、下の計算機を使って、他の人の公開情報 <strong>B</strong> から
         <strong>B<sup>a</sup> mod 999983</strong> を計算し、
-        「その人との秘密」に記入してください。
-
-
+        ワークシートの「その人との秘密」に記入してください。
     </li>
 </ol>
 
 <div class="box">
-  <strong>999981<sup>y</sup> mod 999983計算機</strong><br>
+  <strong>x<sup>y</sup> mod 999983 計算機</strong><br>
+
+  <p>
+    x:
+    <input type="text" id="B" size="10">
+  </p>
 
   <p>
     y:
@@ -82,7 +88,7 @@
   <button onclick="calcKey()">計算</button>
 
   <p>
-    999981<sup>y</sup> mod 999983の計算結果:
+    x<sup>y</sup> mod pの計算結果:
     <span id="result"></span>
   </p>
 
@@ -118,9 +124,10 @@
   }
 
   function calcKey() {
+      const B = document.getElementById("B").value;
       const a = document.getElementById("a").value;
 
-      const sharedKey = modPow(999981, a, 999983);
+      const sharedKey = modPow(B, a, 999983);
 
       document.getElementById("result").textContent =
           sharedKey.toString();
