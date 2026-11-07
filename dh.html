@@ -31,16 +31,16 @@
 
 <body>
 
-<h1>Diffie-Hellman 鍵交換 (サイエンスコース 勝股審也)</h1>
+<h1>Diffie-Hellman 鍵交換 (模擬授業 勝股審也)</h1>
 
-<p>この授業では、以下の値を使用します。</p>
+<!-- <p>この授業では、以下の値を使用します。</p> -->
 
-<div class="box">
-    <strong>公開パラメータ</strong><br>
-    p = 999983（素数）<br>
-    q = 6329<br>
-    g = 999981
-</div>
+<!-- <div class="box"> -->
+<!--     <strong>公開パラメータ</strong><br> -->
+<!--     p = 999983（素数）<br> -->
+<!--     q = 6329<br> -->
+<!--     g = 999981 -->
+<!-- </div> -->
 
 <p style="font-size: 200%; text-align: center;">
 あなたの秘密鍵<strong>a</strong>は
@@ -52,43 +52,50 @@
     <li>
       <!--この画面を閉じないようにしておくか、または-->
         秘密鍵<strong>a</strong> をワークシートの裏面など、
-        他の人に見えない場所へ控えてください。
+        他の人に見えない場所へ控えてください。あるいはブラウザを閉じないでおいてください。
     </li>
 
     <li>
         下の計算機を使って
         <strong>999981<sup>a</sup> mod 999983</strong>
         を計算し、ワークシートの
-        「自分の公開情報」に記入してください。
+        「自分の公開情報」に記入してください。<br/>
+	(「xを999981にする」ボタンを押して「計算」ボタンを押すと出てきます)
     </li>
 
     <li>
-      他の人数名と公開情報を交換して、名前と公開情報をワークシートに記入してください。
+      数名と公開情報を交換して、名前と公開情報をワークシートに記入してください。
+      この公開情報は他の人にみられても大丈夫です。
     </li>
     <li>
-        交換し終わったら、下の計算機を使って、他の人の公開情報 <strong>B</strong> から
+        交換し終わったら、自分の机に戻り、下の計算機を使って、他の人の公開情報 <strong>B</strong> から
         <strong>B<sup>a</sup> mod 999983</strong> を計算し、
-        ワークシートの「その人との秘密」に記入してください。
+        ワークシートの「その人との秘密」に記入してください。<br/>
+	(xの所に他の人の公開情報を入力して「計算」ボタンを押すと出てきます)
+    </li>
+    <li>
+      公開情報を交換した人と同じ秘密を持っているか確かめてみましょう。
     </li>
 </ol>
 
 <div class="box">
-  <strong>x<sup>y</sup> mod 999983 計算機</strong><br>
+  <strong>x<sup>a</sup> mod 999983 計算機</strong><br>
 
   <p>
     x:
     <input type="text" id="B" size="10">
+    <button type="button" onclick="document.getElementById('B').value = 999981">xを999981にする</button>
   </p>
 
   <p>
-    y:
+    a:
     <input type="text" id="a" size="10">
   </p>
 
   <button onclick="calcKey()">計算</button>
 
   <p>
-    x<sup>y</sup> mod pの計算結果:
+    x<sup>a</sup> mod pの計算結果:
     <span id="result"></span>
   </p>
 
@@ -97,8 +104,9 @@
 </body>
 <script>
   const a = Math.floor(Math.random() * 4000) + 2000;
-  // 4000 ～ 4999
+  // 2000 ～ 5999
   document.getElementById("secretKey").textContent = a;
+  document.getElementById('a').value = a;
 </script>
 </html>
 
